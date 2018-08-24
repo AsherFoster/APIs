@@ -1,0 +1,42 @@
+{
+  "name": "apis",
+  "version": "2.0.0",
+  "description": "It shortens urls",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsherFoster/apis.git"
+  },
+  "author": "Asher Foster <me@asherfoster.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AsherFoster/apis/issues"
+  },
+  "homepage": "https://github.com/AsherFoster/apis#readme",
+  "devDependencies": {
+    "@types/bcrypt": "^2.0.0",
+    "@types/cors": "^2.8.4",
+    "@types/express": "^4.11.1",
+    "@types/jsonwebtoken": "^7.2.8",
+    "@types/mongodb": "^3.0.18",
+    "@types/mongoose": "^5.0.18",
+    "@types/node": "^10.1.2",
+    "tslint": "^5.10.0",
+    "typescript": "^2.8.3",
+    "vrsource-tslint-rules": "^5.8.2"
+  },
+  "dependencies": {
+    "@types/raven": "^2.5.1",
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.1.1",
+    "raven": "^2.6.3"
+  }
+}
