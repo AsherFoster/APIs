@@ -113,8 +113,8 @@ selectNodeVersion
 # 3. Install npm packages
 if [ -e "$DEPLOYMENT_TARGET/package.json" ]; then
   cd "$DEPLOYMENT_TARGET"
-  echo "Running $NPM_CMD install --production=false"
-  eval NODE_ENV=installing $NPM_CMD install --production=false
+  echo "Running $NPM_CMD install --production=false --scripts-prepend-node-path"
+  eval NODE_ENV=installing $NPM_CMD install --production=false --scripts-prepend-node-path
   exitWithMessageOnError "npm failed"
   echo "Installed Packages:"
   eval $NPM_CMD ls --depth=0
