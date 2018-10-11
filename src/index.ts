@@ -4,7 +4,8 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
-import * as Raven from 'raven';
+import * as Sentry from '@sentry/node';
+import './sentry';
 import {NextFunction, Request, Response} from './types';
 import shortner from './shortener';
 import auth from './auth';
@@ -12,59 +13,48 @@ import {redirector} from './shortener/redirector';
 import config from './config';
 import {error} from './errors';
 
-Raven.config(config.sentry.dsn, {
-  autoBreadcrumbs: true,
-  captureUnhandledRejections: true
-}).install();
-
-// Context:
-// TODO Node ver
-
 const app = express();
 const PORT = process.env.PORT || 8080;
+const STATIC = path.resolve(__dirname, '../static');
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 const ENVIRONMENT = process.env.NODE_ENV || 'production';
 const HTTPS_CERT_PATH = config.httpsCertPath;
+const MONGO_URI = process.env.CUSTOMCONNSTR_MONGO_URI || process.env.MONGO_URI;
 
 console.log(`Setting environment as ${ENVIRONMENT}`);
 
-mongoose.connect(config.mongoHost);
+mongoose.connect(MONGO_URI);
 mongoose.connection.on('error', e => {
-  Raven.captureException(e);
+  Sentry.captureException(e);
 });
 
-app.use(Raven.requestHandler());
+app.use(Sentry.Handlers.requestHandler());
 app.get('/', (req: Request, res: Response) => {
   if(config.homepage.type === 'file') {
-    res.sendFile(path.resolve(__dirname, '../', config.homepage.path));
+    res.sendFile(path.resolve(STATIC, config.homepage.path));
   } else if(config.homepage.type === 'redirect') {
-    res.redirect(config.homepage.path, 301);
-  } else res.sendStatus(500);
+    res.redirect(config.homepage.path, 302);
+  } else res.status(500).json(error('InternalError', 'Homepage configuration is invalid'));
 });
-app.get('/config.json', (req: Request, res: Response) => {
+app.get('/config.json', (_, res: Response) => {
   res.json({
     auth: '/auth/1',
-    shortener: '/shortner/1',
+    shortener: '/shortener/1',
     success: true
   });
 });
 app.use('/shortener/1', shortner);
 app.use('/auth/1', auth);
-app.use('/manage', express.static(config.adminPanel));
-app.get('/:id', redirector);
-app.get('/sentry', () => {throw new Error('Sentry demo!'); });
-app.use((req: Request, res: Response) => {
-  res.sendFile(path.resolve(__dirname, '../static/404.html'));
-});
-app.use(Raven.errorHandler());
+app.use('/static/background.jpg', (_, res: Response) => res.sendFile(STATIC + '/background.jpg'));
+// app.get('/:id', redirector); // Redirects are now handled by a separate app
+app.use((_, res: Response) => res.status(404).sendFile(STATIC + '/404.html'));
+app.use(Sentry.Handlers.errorHandler());
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    error: error('InternalError', null, res.sentry),
-    success: false
-  });
+  if(ENVIRONMENT === 'development') console.log(err);
+  res.status(500).json(error('InternalError', null, res.sentry));
 });
 
-// Setup the appropriate servers
+// Setup the appropriate servers (HTTP only in prod, HTTPS connections are terminated before app)
 if(HTTPS_CERT_PATH) {
   const httpsServer = https.createServer({
     cert: fs.readFileSync(HTTPS_CERT_PATH + '.crt', 'utf8'),

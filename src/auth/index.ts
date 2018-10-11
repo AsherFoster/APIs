@@ -24,7 +24,7 @@ router
    *  - token: string
    *  - user: PublicUser
    * */
-  .post('/authorize', bodyParser.json(), async (req: Request, res: Response) => {
+  .post('/authorize', requiresAuth, bodyParser.json(), async (req: Request, res: Response) => {
     const {email, password} = req.body;
     if(!email) return res.status(400).json(error('InvalidParam', 'email field is required'));
     if(!password) return res.status(400).json(error('InvalidParam', 'password field is required'));
@@ -171,7 +171,7 @@ router
    *  - success: true
    *  - firstJwt: Date
    * */
-  .get('/users/:id/revoke', requiresAuth, async (req: Request, res: Response) => {
+  .post('/users/:id/revoke', requiresAuth, async (req: Request, res: Response) => {
     const user = await getUserFromParam(req);
     if(!user) return res.status(404).json(error('ObjectNotFound'));
     user.firstJwt = new Date();

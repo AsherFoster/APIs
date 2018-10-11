@@ -30,13 +30,12 @@
     "vrsource-tslint-rules": "^5.8.2"
   },
   "dependencies": {
-    "@types/raven": "^2.5.1",
-    "bcrypt": "^3.0.0",
+    "@sentry/node": "^4.1.1",
+    "bcrypt": "^3.0.1",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.3.0",
-    "mongoose": "^5.1.1",
-    "raven": "^2.6.3"
+    "mongoose": "^5.1.1"
   }
 }

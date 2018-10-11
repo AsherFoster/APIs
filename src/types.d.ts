@@ -16,16 +16,10 @@ export interface Response extends ExResponse {
 export type NextFunction = ExNextFunction;
 
 export interface Config {
-  adminPanel: string;
-  jwtSecret: string; // Secret used when signing JWTs
   httpsCertPath?: string; // Path to HTTPS private key and cert
   homepage: {
     type: 'file'|'redirect';
     path: string;
-  };
-  mongoHost: string;
-  sentry: {
-    dsn: string;
   };
 }
 

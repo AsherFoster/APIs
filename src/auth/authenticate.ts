@@ -1,12 +1,11 @@
-import * as Raven from 'raven';
+import * as Sentry from '@sentry/node';
 import * as jwt from 'jsonwebtoken';
 import {promisify} from 'util';
 import User from './user';
 import {Request, Response, NextFunction} from '../types';
 import {error} from '../errors';
-import config from '../config';
 
-let SECRET = config.jwtSecret; // TODO better key storage
+let SECRET = process.env.JWT_SECRET;
 if(process.env.NODE_ENV === 'production' && !SECRET) {
   throw new Error('No JWT secret set!');
 } else {
@@ -26,7 +25,11 @@ export async function validateJwt(token: string): Promise<User|null> {
   try {
     payload = await promisify(jwt.verify)(token, SECRET) as JWTPayload;
   } catch (e) {
-    Raven.captureException(new Error('Failed to parse token!')); // TODO
+    Sentry.addBreadcrumb({
+      category: 'authentication',
+      level: 'warning' as Sentry.Severity,
+      message: 'Failed to parse token!'
+    });
     return null;
   }
   if(payload.exp < Date.now()) return null; // Expired?
@@ -63,7 +66,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
   const user = await validateJwt(token);
   if(!user) return void next();
-  Raven.captureBreadcrumb({
+  Sentry.addBreadcrumb({
     category: 'authentication',
     data: {
       token: token.substr(5).substr(-10)
