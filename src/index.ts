@@ -9,8 +9,6 @@ import './sentry';
 import {NextFunction, Request, Response} from './types';
 import shortner from './shortener';
 import auth from './auth';
-import {redirector} from './shortener/redirector';
-import config from './config';
 import {error} from './errors';
 
 const app = express();
@@ -18,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 const STATIC = path.resolve(__dirname, '../static');
 const HTTPS_PORT = process.env.HTTPS_PORT || 8443;
 const ENVIRONMENT = process.env.NODE_ENV || 'production';
-const HTTPS_CERT_PATH = config.httpsCertPath;
+const HTTPS_CERT_PATH = ''; // config.httpsCertPath;
 const MONGO_URI = process.env.CUSTOMCONNSTR_MONGO_URI || process.env.MONGO_URI;
 
 console.log(`Setting environment as ${ENVIRONMENT}`);
@@ -30,11 +28,7 @@ mongoose.connection.on('error', e => {
 
 app.use(Sentry.Handlers.requestHandler());
 app.get('/', (req: Request, res: Response) => {
-  if(config.homepage.type === 'file') {
-    res.sendFile(path.resolve(STATIC, config.homepage.path));
-  } else if(config.homepage.type === 'redirect') {
-    res.redirect(config.homepage.path, 302);
-  } else res.status(500).json(error('InternalError', 'Homepage configuration is invalid'));
+  res.sendFile(path.resolve(STATIC, '/home.html'));
 });
 app.get('/config.json', (_, res: Response) => {
   res.json({
