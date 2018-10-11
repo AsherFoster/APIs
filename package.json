@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/AsherFoster/apis/issues"
   },
+  "engines": {
+    "node": ">=10.1"
+  },
   "homepage": "https://github.com/AsherFoster/apis#readme",
   "devDependencies": {
     "@types/bcrypt": "^2.0.0",
