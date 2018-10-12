@@ -28,7 +28,7 @@ mongoose.connection.on('error', e => {
 
 app.use(Sentry.Handlers.requestHandler());
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.resolve(STATIC, '/home.html'));
+  res.sendFile(STATIC + '/home.html');
 });
 app.get('/config.json', (_, res: Response) => {
   res.json({

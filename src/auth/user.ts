@@ -36,7 +36,7 @@ export interface User extends mongoose.Document {
   name: string;
   password: string;
   publicUser: () => PublicUser;
-  checkPassword: (password: string) => Promise<boolean>;
+  checkPassword: typeof userSchema.methods.checkPassword;
 }
 
 interface PublicUser {

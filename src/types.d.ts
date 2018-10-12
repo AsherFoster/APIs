@@ -14,12 +14,3 @@ export interface Response extends ExResponse {
 }
 
 export type NextFunction = ExNextFunction;
-
-export interface Config {
-  httpsCertPath?: string; // Path to HTTPS private key and cert
-  homepage: {
-    type: 'file'|'redirect';
-    path: string;
-  };
-}
-

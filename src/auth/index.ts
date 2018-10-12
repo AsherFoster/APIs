@@ -24,15 +24,15 @@ router
    *  - token: string
    *  - user: PublicUser
    * */
-  .post('/authorize', requiresAuth, bodyParser.json(), async (req: Request, res: Response) => {
+  .post('/authorize', bodyParser.json(), async (req: Request, res: Response) => {
     const {email, password} = req.body;
     if(!email) return res.status(400).json(error('InvalidParam', 'email field is required'));
     if(!password) return res.status(400).json(error('InvalidParam', 'password field is required'));
 
     const user = await User.findOne({email});
-    if(!user) return res.status(401).json(error('AuthorizationFailed'));
+    if(!user) return res.status(401).json(error('AuthorizationFailed', 'that email isn\'t recognized'));
     const valid = await user.checkPassword(password);
-    if(!valid) return res.status(401).json(error('AuthorizationFailed'));
+    if(!valid) return res.status(401).json(error('AuthorizationFailed', 'incorrect password'));
 
     const token = await createJwt(user);
     user.lastLogin = new Date();
