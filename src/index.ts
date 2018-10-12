@@ -21,7 +21,19 @@ const MONGO_URI = process.env.CUSTOMCONNSTR_MONGO_URI || process.env.MONGO_URI;
 
 console.log(`Setting environment as ${ENVIRONMENT}`);
 
-mongoose.connect(MONGO_URI);
+// Yes I know this whole connection URL thing is a mess...
+const PARSED_MONGO_URI = new URL(MONGO_URI);
+const MONGO_HOST = PARSED_MONGO_URI.protocol + '//' + PARSED_MONGO_URI.host + PARSED_MONGO_URI.pathname + PARSED_MONGO_URI.search;
+console.log('Connecting to MongoDB at', MONGO_HOST);
+
+mongoose.connect(MONGO_HOST, {
+  auth: (PARSED_MONGO_URI.username || PARSED_MONGO_URI.password) && {
+    password: PARSED_MONGO_URI.password,
+    user: PARSED_MONGO_URI.username
+  }
+})
+  .then(() => console.log('Connected to MongoDB!'))
+  .catch(e => {throw e; });
 mongoose.connection.on('error', e => {
   Sentry.captureException(e);
 });
